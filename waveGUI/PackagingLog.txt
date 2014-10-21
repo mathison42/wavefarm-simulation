@@ -1,0 +1,25 @@
+ant:
+<ant>
+  <mkdir dir="Y:\workspace\ece_research\wavefarm-simulation\waveGUI\for_redistribution" />
+  <mkdir dir="Y:\workspace\ece_research\wavefarm-simulation\waveGUI\for_testing" />
+</ant>
+mcc -C -o waveGUI -W WinMain:waveGUI -T link:exe -d Y:\workspace\ece_research\wavefarm-simulation\waveGUI\for_testing -v Y:\workspace\ece_research\wavefarm-simulation\waveGUI.m 
+Compiler version: 5.1 (R2014a)
+Dependency analysis by REQUIREMENTS.
+[Warning: Adding path "Y:\workspace\ece_research\wavefarm-simulation" to
+Compiler path instance.] 
+Parsing file "Y:\workspace\ece_research\wavefarm-simulation\waveGUI.m"
+	(Referenced from: "Compiler Command Line").
+Parsing file "R:\MATLAB\R2014a\toolbox\compiler\deploy\deployprint.m"
+	(Referenced from: "Compiler Command Line").
+Parsing file "R:\MATLAB\R2014a\toolbox\compiler\deploy\printdlg.m"
+	(Referenced from: "Compiler Command Line").
+Deleting 0 temporary MEX authorization files.
+Generating file "Y:\workspace\ece_research\wavefarm-simulation\waveGUI\for_testing\readme.txt".
+Packaging...
+Adding custom icon R:\MATLAB\R2014a\toolbox\compiler\Resources\default_icon.ico to Y:\workspace\ece_research\wavefarm-simulation\waveGUI\for_testing\waveGUI.exe.
+Attempting to embed the CTF archive into the application Y:\workspace\ece_research\wavefarm-simulation\waveGUI\for_testing\waveGUI.exe.
+Finished embedding CTF archive. Deleting the external CTF archive.
+Creating the bundle...
+Web based installer created at Y:\workspace\ece_research\wavefarm-simulation\waveGUI\for_redistribution\MyAppInstaller_web.exe.
+Packaging complete.
