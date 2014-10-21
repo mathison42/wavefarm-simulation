@@ -344,7 +344,7 @@ function graph_init
     %clf;
     w_width = 100;
     w_length = 100;
-    w_Z = ones(w_width,w_length);
+    w_Z = zeros(w_width,w_length);
     w_color = ones(w_width,w_length);
     w_color(:,:,1) = 0;
     w_color(:,:,2) = 0;
