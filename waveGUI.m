@@ -22,7 +22,7 @@ function varargout = waveGUI(varargin)
 
 % Edit the above text to modify the response to help waveGUI
 
-% Last Modified by GUIDE v2.5 13-Oct-2014 23:03:29
+% Last Modified by GUIDE v2.5 20-Oct-2014 21:40:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -42,6 +42,8 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
+
+
 
 
 % --- Executes just before waveGUI is made visible.
@@ -71,7 +73,16 @@ guidata(hObject, handles);
 % UIWAIT makes waveGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-
+% global variables
+global sensorNum
+sensorNum = 0
+global wecsNum
+wecsNum = 0
+global waveElevation
+waveElevation = 0.0
+global waveFigure
+global wecsData
+global sensorData
 
 % --- Outputs from this function are returned to the command line.
 function varargout = waveGUI_OutputFcn(hObject, eventdata, handles) 
@@ -80,39 +91,9 @@ function varargout = waveGUI_OutputFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-graph_init();
+%graph_init();
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-
-
-
-% --- Executes on button press in surf_pushbutton.
-function surf_pushbutton_Callback(hObject, eventdata, handles)
-% hObject    handle to surf_pushbutton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Display surf plot of the currently selected data
-surf(handles.current_data);
-
-% --- Executes on button press in mesh_pushbutton.
-function mesh_pushbutton_Callback(hObject, eventdata, handles)
-% hObject    handle to mesh_pushbutton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Display surf plot of the currently selected data
-mesh(handles.current_data);
-
-% --- Executes on button press in contour_pushbutton.
-function contour_pushbutton_Callback(hObject, eventdata, handles)
-% hObject    handle to contour_pushbutton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Display surf plot of the currently selected data
-contour(handles.current_data);
-
 
 function edit1_Callback(hObject, eventdata, handles)
 % hObject    handle to edit1 (see GCBO)
@@ -187,6 +168,8 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+cla;
+graph_init();
 
 
 % --- Executes on slider movement.
@@ -195,6 +178,8 @@ function SensorSlider_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.sensorTxt, 'String', get(hObject, 'Value'))
+global sensorNum
+sensorNum = get(hObject, 'Value')
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
@@ -218,6 +203,9 @@ function WECSSlider_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.wecsTxt, 'String', get(hObject, 'Value'))
+global wecsNum
+wecsNum = get(hObject, 'Value')
+
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
@@ -240,6 +228,8 @@ function WaveElevationSlider_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.waveTxt, 'String', get(hObject, 'Value'))
+global waveElevation
+waveElevation = get(hObject, 'Value')
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
@@ -255,18 +245,6 @@ function WaveElevationSlider_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-
-% --- Executes when entered data in editable cell(s) in wecsTable.
-function wecsTable_CellEditCallback(hObject, eventdata, handles)
-% hObject    handle to wecsTable (see GCBO)
-% eventdata  structure with the following fields (see UITABLE)
-%	Indices: row and column indices of the cell(s) edited
-%	PreviousData: previous data for the cell(s) edited
-%	EditData: string(s) entered by the user
-%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
-%	Error: error string when failed to convert EditData to appropriate value for Data
-% handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
@@ -354,33 +332,55 @@ function SensorSlider_KeyPressFcn(hObject, eventdata, handles)
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
 
-
 function graph_init
+    global sensorNum
+    global wecsNum
+    global waveElevation
+    global waveFigure
+    global wecsData
+    global sensorData
     %figure; 
     %cla;
     %clf;
     w_width = 100;
     w_length = 100;
-    w_Z = zeros(w_width,w_length);
+    w_Z = ones(w_width,w_length);
     w_color = ones(w_width,w_length);
     w_color(:,:,1) = 0;
     w_color(:,:,2) = 0;
     w_color(:,:,3) = 1;
-    wec_count = 5;
-    sens_count = 5;
+    wec_count = wecsNum;
+    sens_count = sensorNum;
     wec = ones(wec_count,3);
     sens = ones(sens_count,3);
     %           wec_id    ,dimensions(x,y,z)
 
 
     %wec/sens x,y assignment
-    for i = 1:wec_count
-        wec(i,:) = [(floor(rand*w_width)+1) (floor(rand*w_length)+1) 1];
+    %for i = 1:wec_count
+        %wec(i,:) = [(floor(rand*w_width)+1) (floor(rand*w_length)+1) 1];
+    %end
+    %for i = 1:sens_count
+        %sens(i,:) = [(floor(rand*w_width)+1) (floor(rand*w_length)+1) 1];
+    %end
+	for i = 1:wec_count
+        if isempty(str2double((wecsData(i,1)))) || isempty(str2double((wecsData(i,2))))
+            wec(i,:) = [i 1 1]
+        elseif not(str2double((wecsData(i,1))) > 0) || not(str2double((wecsData(i,2))) > 0)
+            wec(i,:) = [i 1 1]
+        else
+            wec(i,:) = [str2double((wecsData(i,1))) str2double((wecsData(i,2))) 1]
+        end
     end
     for i = 1:sens_count
-        sens(i,:) = [(floor(rand*w_width)+1) (floor(rand*w_length)+1) 1];
+        if isempty(str2double((sensorData(i,1)))) || isempty(str2double((sensorData(i,2))))
+            sens(i,:) = [i 1 1]
+        elseif not(str2double((sensorData(i,1))) > 0) || not(str2double((sensorData(i,2))) > 0)
+            sens(i,:) = [i 1 1]
+        else
+            sens(i,:) = [str2double((sensorData(i,1))) str2double((sensorData(i,2))) 1]
+        end
     end
-
     %handle_wec = ones(wec_count);
     hold on;
     handle_w = surf(w_Z,w_color);
@@ -396,9 +396,8 @@ function graph_init
     increment = 0;
     material dull;
     sine_freq = 0.15;
-    sine_amplitude = 0.3;
-    
-    
+    %sine_amplitude = 0.3;
+    sine_amplitude = waveElevation * .1
     
     
     view(3);
@@ -414,8 +413,6 @@ function graph_init
         for xx = w_width:-1:2
             w_Z(xx,:) = .5*w_Z(xx,:) + .5*w_Z(xx-1,:);
         end
-
-
 
 
         %wec/sens height calcs
@@ -446,5 +443,51 @@ function graph_init
         drawnow;
         pause(1/30);
     end
+    
 
     
+% --- Executes when entered data in editable cell(s) in sensorTable.
+function sensorTable_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to sensorTable (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+global sensorData
+sensorData = get(hObject, 'data')
+
+
+
+% --- Executes when entered data in editable cell(s) in wecsTable.
+function wecsTable_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to wecsTable (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+global wecsData
+wecsData = get(hObject, 'data')
+
+
+% --- Executes during object creation, after setting all properties.
+function sensorTable_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sensorTable (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global sensorData
+sensorData = get(hObject, 'data')
+
+
+% --- Executes during object creation, after setting all properties.
+function wecsTable_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to wecsTable (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global wecsData
+wecsData = get(hObject, 'data')
